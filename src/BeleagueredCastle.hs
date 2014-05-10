@@ -1,3 +1,10 @@
+module BeleagueredCastle (
+  Card(Card),
+  Suit(..),
+  Rank(..),
+  show
+ ) where
+
 import Data.Sequence
 import Data.Foldable
 import System.IO
@@ -53,6 +60,7 @@ allCards = [Card r s | r <- allRanks, s <- allSuits]
 
 data StackType = Foundation | Row deriving (Show)
 data Stack = Stack [Card] StackType deriving (Show)
+
 
 data Board = Board [Stack] deriving (Show)
 
