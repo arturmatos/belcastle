@@ -16,18 +16,48 @@ loop =
 
 
 
-data Suit = Hearts | Diamonds | Clubs | Spades deriving (Show, Eq, Enum)
-data Rank = RA | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | RJ | RQ | RK deriving (Show, Enum, Eq)
+data Suit = Hearts | Diamonds | Clubs | Spades deriving (Eq, Enum)
+instance Show Suit where
+  show Hearts = "\x2661"
+  show Diamonds = "\x2662"
+  show Clubs = "\x2663"
+  show Spades = "\x2660"
+
+
+data Rank = RA | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | RJ | RQ | RK deriving (Enum, Eq)
+instance Show Rank where
+  show RA = "A"
+  show R2 = "2"
+  show R3 = "3"
+  show R4 = "4"
+  show R5 = "5"
+  show R6 = "6"
+  show R7 = "7"
+  show R8 = "8"
+  show R9 = "9"
+  show R10 = "10"
+  show RJ = "J"
+  show RQ = "Q"
+  show RK = "K"
+
+
 allRanks = [RA ..]
 allSuits = [Hearts ..]
 
-data Card = Card Rank Suit deriving (Show, Eq)
+data Card = Card Rank Suit deriving (Eq)
+instance Show Card where
+  show (Card r s) = (show r) ++ (show s)
+
+
 allCards = [Card r s | r <- allRanks, s <- allSuits]
 
 data StackType = Foundation | Row deriving (Show)
 data Stack = Stack [Card] StackType deriving (Show)
 
 data Board = Board [Stack] deriving (Show)
+
+
+
 
 getStack :: Board -> Int -> Stack
 getStack (Board stackList) index = stackList !! index
