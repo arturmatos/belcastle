@@ -58,11 +58,21 @@ instance Show Card where
 
 allCards = [Card r s | r <- allRanks, s <- allSuits]
 
-data StackType = Foundation | Row deriving (Show)
-data Stack = Stack [Card] StackType deriving (Show)
+data StackType = Foundation | Row deriving (Show, Eq)
+data Stack = Stack [Card] StackType  
+instance Show Stack where
+  show (Stack (x:xs) Foundation) = "[ " ++ (show x) ++ " ]"
+  show (Stack cardList Row) = "[ " ++ (intercalate "  " (map show cardList)) ++ " ]"
 
+data Board = Board [Stack] 
+instance Show Board where
+  show = showBoard
 
-data Board = Board [Stack] deriving (Show)
+showBoard :: Board -> String
+showBoard (Board list) = 
+  let foundations = Data.List.filter (\x -> stackType x == Foundation) list  
+      rows = Data.List.filter (\x -> stackType x == Row) list  
+  in (show foundations) ++ "\n" ++ (intercalate "\n" (map show rows))
 
 
 
@@ -116,6 +126,8 @@ generateMoves board =
      possibleMoves = Data.List.filter (isLegalMoveBoard board) moveIndexes
  in map (move board) possibleMoves
 
+
+
 createBoard :: [Card] -> Board
 createBoard cards =
     let cardsWithoutAces = [c | c <- cards, rank c /= RA]
@@ -132,3 +144,5 @@ asFoundations [w,x,y,z] = [Stack w Foundation,
 
 asRows [] = []
 asRows (x:xs) = (Stack x Row) : (asRows xs)
+
+
