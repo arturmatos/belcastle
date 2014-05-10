@@ -2,7 +2,10 @@ module BeleagueredCastle (
   Card(Card),
   Suit(..),
   Rank(..),
-  show
+  Stack(..),
+  StackType(..),
+  show,
+  isLegalMove
  ) where
 
 import Data.Sequence
@@ -25,10 +28,10 @@ loop =
 
 data Suit = Hearts | Diamonds | Clubs | Spades deriving (Eq, Enum)
 instance Show Suit where
-  show Hearts = "\x2661"
+  show Hearts   = "\x2661"
   show Diamonds = "\x2662"
-  show Clubs = "\x2663"
-  show Spades = "\x2660"
+  show Clubs    = "\x2663"
+  show Spades   = "\x2660"
 
 
 data Rank = RA | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | RJ | RQ | RK deriving (Enum, Eq)
@@ -71,7 +74,7 @@ instance Show Board where
 showBoard :: Board -> String
 showBoard (Board list) = 
   let foundations = Data.List.filter (\x -> stackType x == Foundation) list  
-      rows = Data.List.filter (\x -> stackType x == Row) list  
+      rows        = Data.List.filter (\x -> stackType x == Row) list  
   in (show foundations) ++ "\n" ++ (intercalate "\n" (map show rows))
 
 
@@ -102,7 +105,7 @@ precedes (Card r1 _) (Card r2 _) = (pred r2) == r1
 
 isLegalMove :: Stack -> Stack -> Bool
 isLegalMove (Stack (topCard:_) _) (Stack (topCard2:_) Foundation) = succeedsInSuit topCard topCard2
-isLegalMove (Stack (topCard:_) _) (Stack (topCard2:_) Row) = precedes topCard topCard2
+isLegalMove (Stack (topCard:_) _) (Stack (topCard2:_) Row) = precedes topCard topCard2 && rank topCard /= RA
 
 isLegalMoveBoard :: Board -> (Int, Int) -> Bool
 isLegalMoveBoard board (index1, index2) = isLegalMove (getStack board index1) (getStack board index2)
@@ -115,14 +118,14 @@ move (Board stackList) (index1, index2) =
         toType = stackType toStack
         (e:rem) = cards fromStack
         toCards = cards toStack
-        resultFrom = Stack (e:toCards) fromType
-        resultTo = Stack rem toType
+        resultFrom = Stack rem fromType
+        resultTo = Stack (e:toCards) toType
     in Board (toList(update index2 resultTo (update index1 resultFrom (fromList stackList))))
 
 
 generateMoves :: Board -> [Board]
 generateMoves board =
- let moveIndexes = [(x, y) | x <-[0 .. 11] , y <- [0 .. 11], x /= y]
+ let moveIndexes = [(x, y) | x <- [0 .. 11] , y <- [0 .. 11], x /= y]
      possibleMoves = Data.List.filter (isLegalMoveBoard board) moveIndexes
  in map (move board) possibleMoves
 
