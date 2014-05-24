@@ -1,21 +1,28 @@
-{-# LANGUAGE FlexibleInstances, TemplateHaskell #-}
 module Main where
 
-import Test.HUnit
 import BeleagueredCastle
-import Test.Framework
-import Test.Framework.TH
+import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit
-import Test.Framework.Providers.QuickCheck2
+--import Test.Framework.Providers.QuickCheck (testProperty)
+
+import Test.QuickCheck
+import Test.HUnit
 
 main :: IO ()
-main = $(defaultMainGenerator)
+main = defaultMain tests
+
+tests = [
+        testGroup "Sorting Group 1" [
+                testCase "sort7" test_1,
+                testCase "sort8" test_2
+            ]
+    ]
 
 
-test1 = TestCase (assertEqual "" "A\x2661" (show (Card RA Hearts)))
+test_1 = assertEqual "" "A\x2661" (show (Card RA Hearts))
 
-test2 = TestCase (assertEqual "cannot move ace from foundation to row" 
-  False (isLegalMove (Stack [Card RA Hearts] Foundation) (Stack [Card R2 Clubs] Row)))
+test_2 = assertEqual "cannot move ace from foundation to row" 
+  False (isLegalMove (Stack [Card RA Hearts] Foundation) (Stack [Card R2 Clubs] Row))
 
 -- test2 = TestCase (assertEqual "" 
   -- "[[ A♡ ],[ A♢ ],[ A♣ ],[ A♠ ]]\n" ++
