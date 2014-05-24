@@ -3,6 +3,10 @@ module Main where
 
 import Test.HUnit
 import BeleagueredCastle
+import Test.Framework
+import Test.Framework.TH
+import Test.Framework.Providers.HUnit
+import Test.Framework.Providers.QuickCheck2
 
 main :: IO ()
 main = $(defaultMainGenerator)

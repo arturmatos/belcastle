@@ -61,7 +61,7 @@ Test-Suite test-bcastle
      Hs-Source-Dirs: src,testsuite
 -- Test-Module: ???
      Main-is: Tests.hs
-     Build-Depends: base, test-framework, test-framework-quickcheck2,
+     Build-Depends: base, containers==0.5.0.0, test-framework, test-framework-quickcheck2,
                      QuickCheck, test-framework-hunit,
                      test-framework-th,
                      HUnit  
