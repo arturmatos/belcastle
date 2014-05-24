@@ -54,4 +54,14 @@ executable bcastle
   
   -- Directories containing source files.
   hs-source-dirs:      src
-  
+ 
+
+Test-Suite test-bcastle
+     Type: exitcode-stdio-1.0
+     Hs-Source-Dirs: src,testsuite
+-- Test-Module: ???
+     Main-is: Tests.hs
+     Build-Depends: base, test-framework, test-framework-quickcheck2,
+                     QuickCheck, test-framework-hunit,
+                     test-framework-th,
+                     HUnit  

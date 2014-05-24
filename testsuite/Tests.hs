@@ -1,5 +1,12 @@
+{-# LANGUAGE FlexibleInstances, TemplateHaskell #-}
+module Main where
+
 import Test.HUnit
 import BeleagueredCastle
+
+main :: IO ()
+main = $(defaultMainGenerator)
+
 
 test1 = TestCase (assertEqual "" "A\x2661" (show (Card RA Hearts)))
 
