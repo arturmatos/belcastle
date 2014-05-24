@@ -13,18 +13,6 @@ import Data.Foldable
 import System.IO
 import Data.List
 
-main = loop
-
-loop = 
-  do iseof <- hIsEOF stdin
-     if iseof 
-        then return ()
-        else 
-          do str <- hGetLine stdin
-             hPutStrLn stdout str
-             loop
-
-
 
 data Suit = Hearts | Diamonds | Clubs | Spades deriving (Eq, Enum)
 instance Show Suit where
