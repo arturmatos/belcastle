@@ -3,10 +3,11 @@ module Main where
 import BeleagueredCastle
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit
---import Test.Framework.Providers.QuickCheck (testProperty)
+import Test.Framework.Providers.QuickCheck2 (testProperty)
 
 import Test.QuickCheck
 import Test.HUnit
+import Data.List
 
 main :: IO ()
 main = defaultMain tests
@@ -14,7 +15,8 @@ main = defaultMain tests
 tests = [
         testGroup "Sorting Group 1" [
                 testCase "sort7" test_1,
-                testCase "sort8" test_2
+                testCase "sort8" test_2,
+                testProperty "prop1" prop_sort1 
             ]
     ]
 
@@ -23,6 +25,9 @@ test_1 = assertEqual "" "A\x2661" (show (Card RA Hearts))
 
 test_2 = assertEqual "cannot move ace from foundation to row" 
   False (isLegalMove (Stack [Card RA Hearts] Foundation) (Stack [Card R2 Clubs] Row))
+
+prop_sort1 xs = sort xs == sortBy compare xs
+  where types = (xs :: [Int])
 
 -- test2 = TestCase (assertEqual "" 
   -- "[[ A♡ ],[ A♢ ],[ A♣ ],[ A♠ ]]\n" ++
