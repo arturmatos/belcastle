@@ -5,7 +5,9 @@ module BeleagueredCastle (
   Stack(..),
   StackType(..),
   show,
-  isLegalMove
+  isLegalMove,
+  solve,
+  strAsBoard
  ) where
 
 import Data.Sequence
@@ -38,6 +40,7 @@ instance Show Rank where
   show RQ = "Q"
   show RK = "K"
 
+type Move = (Int, Int)
 
 allRanks = [RA ..]
 allSuits = [Hearts ..]
@@ -137,3 +140,8 @@ asRows [] = []
 asRows (x:xs) = (Stack x Row) : (asRows xs)
 
 
+solve :: Board -> Maybe [(Int, Int)]
+solve _ = Just []
+
+strAsBoard :: String -> Board
+strAsBoard str = createBoard allCards

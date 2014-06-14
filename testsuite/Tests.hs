@@ -16,6 +16,9 @@ tests = [
         testGroup "Sorting Group 1" [
                 testCase "sort7" test_1,
                 testCase "sort8" test_2,
+                testCase "alreadysolved" test_if_already_solved_return_empty_list,
+                testCase "onemove1" test_if_one_move_to_solve_report_that_move ,
+                testCase "onemove2" test_if_one_move_to_solve_from_stack1_report_that_move,
                 testProperty "prop1" prop_sort1 
             ]
     ]
@@ -28,6 +31,33 @@ test_2 = assertEqual "cannot move ace from foundation to row"
 
 prop_sort1 xs = sort xs == sortBy compare xs
   where types = (xs :: [Int])
+
+test_if_already_solved_return_empty_list = 
+  let b = strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                     "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                     "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                     "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n")
+  in assertEqual "" (solve b) (Just [])
+
+test_if_one_move_to_solve_report_that_move =
+  let b = strAsBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                     "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                     "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                     "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n" ++
+                     "KH\n"
+                     )
+  in assertEqual "" (solve b) (Just [(4, 0)])
+  
+test_if_one_move_to_solve_from_stack1_report_that_move =
+  let b = strAsBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                     "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                     "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                     "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n" ++
+                     "\n" ++
+                     "KH\n"
+                     )
+  in assertEqual "" (solve b) (Just [(5, 0)])
+
 
 -- test2 = TestCase (assertEqual "" 
   -- "[[ A♡ ],[ A♢ ],[ A♣ ],[ A♠ ]]\n" ++
