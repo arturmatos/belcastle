@@ -4,7 +4,7 @@ module BeleagueredCastle (
   Rank(..),
   StackType(..),
   show,
-  isLegalMove,
+  isLegalStackMove,
   solve,
   createBoard,
   readBoard,
@@ -83,17 +83,17 @@ precedes :: Card -> Card -> Bool
 precedes _ (Card RA _) = False
 precedes (Card r1 _) (Card r2 _) = (pred r2) == r1
 
--- isLegalMove cards1 cards2 t : is moving the top card from 
+-- isLegalStackMove cards1 cards2 t : is moving the top card from 
 -- cards1 to cards2 legal, where cards2 is a stack of type t?
-isLegalMove :: [Card] -> [Card] -> StackType -> Bool
-isLegalMove [] _ _ = False  -- consider this clause carefully
-isLegalMove _ [] _ = False   -- consider this clause carefully, affects termination conditions
-isLegalMove (topCard:_) (topCard2:_) Foundation = succeedsInSuit topCard topCard2
-isLegalMove (topCard:_) (topCard2:_) Row = precedes topCard topCard2 && rank topCard /= RA
+isLegalStackMove :: [Card] -> [Card] -> StackType -> Bool
+isLegalStackMove [] _ _ = False  -- consider this clause carefully
+isLegalStackMove _ [] _ = False   -- consider this clause carefully, affects termination conditions
+isLegalStackMove (topCard:_) (topCard2:_) Foundation = succeedsInSuit topCard topCard2
+isLegalStackMove (topCard:_) (topCard2:_) Row = precedes topCard topCard2 && rank topCard /= RA
 
-isLegalMoveBoard :: Board -> (Int, Int) -> Bool
-isLegalMoveBoard board (index1, index2) = 
-  isLegalMove (getStack board index1) (getStack board index2) (stackType index2)
+isLegalMove :: Board -> (Int, Int) -> Bool
+isLegalMove board (index1, index2) = 
+  isLegalStackMove (getStack board index1) (getStack board index2) (stackType index2)
 
 stackType :: Int -> StackType
 stackType i 
@@ -118,7 +118,7 @@ move (Board stackList) (index1, index2) =
 generateMoves :: Board -> [Board]
 generateMoves board =
  let moveIndexes = [(x, y) | x <- [0 .. 11] , y <- [0 .. 11], x /= y]
-     possibleMoves = Data.List.filter (isLegalMoveBoard board) moveIndexes
+     possibleMoves = Data.List.filter (isLegalMove board) moveIndexes
  in map (move board) possibleMoves
 
 

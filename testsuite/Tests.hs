@@ -28,7 +28,7 @@ tests =
 test_1 = assertEqual "" "A\x2661" (show (Card RA Hearts))
 
 test_2 = assertEqual "cannot move ace from foundation to row" 
-  False (isLegalMove [Card RA Hearts] [Card R2 Clubs] Row)
+  False (isLegalStackMove [Card RA Hearts] [Card R2 Clubs] Row)
 
 
 test_if_already_solved_return_empty_list = 
