@@ -20,7 +20,7 @@ tests =
      testCase "onemove1" test_if_one_move_to_solve_report_that_move ,
      testCase "onemove2" test_if_one_move_to_solve_from_stack1_report_that_move,
      testCase "strsToCards" testConvertCharsToCard,
-     testCase "strAsBoard" testConvertFromStringToBoard_noRowsPresent
+     testCase "readBoard" testConvertFromStringToBoard_noRowsPresent
     ]
   ]
 
@@ -32,14 +32,14 @@ test_2 = assertEqual "cannot move ace from foundation to row"
 
 
 test_if_already_solved_return_empty_list = 
-  let b = strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+  let b = readBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
                      "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
                      "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
                      "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n")
   in assertEqual "" (solve b) (Just [])
 
 test_if_one_move_to_solve_report_that_move =
-  let b = strAsBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+  let b = readBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
                      "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
                      "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
                      "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n" ++
@@ -48,7 +48,7 @@ test_if_one_move_to_solve_report_that_move =
   in assertEqual "" (solve b) (Just [(4, 0)])
   
 test_if_one_move_to_solve_from_stack1_report_that_move =
-  let b = strAsBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+  let b = readBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
                      "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
                      "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
                      "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n" ++
@@ -60,7 +60,7 @@ test_if_one_move_to_solve_from_stack1_report_that_move =
 testConvertCharsToCard = 
   assertEqual "" [Card r s | s <- [Hearts, Diamonds, Spades, Clubs], 
                              r <- [RA, R2, R3, R4, R5, R6, R7, R8, R9, R10, RJ, RQ, RK]]
-                 (map strToCard ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
+                 (map readCard ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH",
                   "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD",
                   "AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS",
                   "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC"
@@ -73,7 +73,7 @@ testConvertFromStringToBoard_noRowsPresent =
       spades = Data.List.reverse [Card r Spades | r <- [RA, R2, R3, R4, R5, R6, R7, R8, R9, R10, RJ, RQ, RK]]
   in assertEqual "" (createBoard [hearts, diamonds, clubs, spades,
                                   [], [], [], [], [], [], [], [] ])
-                    (strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                    (readBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
                                  "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
                                  "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
                                  "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n"))

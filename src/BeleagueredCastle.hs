@@ -7,9 +7,8 @@ module BeleagueredCastle (
   isLegalMove,
   solve,
   createBoard,
-  strAsBoard,
-  strToCard,
-  ensure
+  readBoard,
+  readCard
  ) where
 
 import Data.Sequence (fromList, update)
@@ -144,8 +143,8 @@ solve _ = Just []
 -- Functions to read Boards and Cards from Strings-------
 ---------------------------------------------------------
 
-strAsBoard :: String -> Board
-strAsBoard str = 
+readBoard :: String -> Board
+readBoard str = 
   let l = lines str
       parsedStacks = (map parseStack l)
       stacks = reverse (ensure 12 [] (reverse parsedStacks))
@@ -160,22 +159,22 @@ ensure n val list
 parseStack :: String -> [Card]
 parseStack line = 
   let strlist = words line
-  in map strToCard strlist
+  in map readCard strlist
 
-strToCard :: String -> Card
-strToCard ('2':rest) = Card R2 (readSuit rest)
-strToCard ('3':rest) = Card R3 (readSuit rest)
-strToCard ('4':rest) = Card R4 (readSuit rest)
-strToCard ('5':rest) = Card R5 (readSuit rest)
-strToCard ('6':rest) = Card R6 (readSuit rest)
-strToCard ('7':rest) = Card R7 (readSuit rest)
-strToCard ('8':rest) = Card R8 (readSuit rest)
-strToCard ('9':rest) = Card R9 (readSuit rest)
-strToCard ('1':'0':rest) = Card R10 (readSuit rest)
-strToCard ('A':rest) = Card RA (readSuit rest)
-strToCard ('J':rest) = Card RJ (readSuit rest)
-strToCard ('Q':rest) = Card RQ (readSuit rest)
-strToCard ('K':rest) = Card RK (readSuit rest)
+readCard :: String -> Card
+readCard ('2':rest) = Card R2 (readSuit rest)
+readCard ('3':rest) = Card R3 (readSuit rest)
+readCard ('4':rest) = Card R4 (readSuit rest)
+readCard ('5':rest) = Card R5 (readSuit rest)
+readCard ('6':rest) = Card R6 (readSuit rest)
+readCard ('7':rest) = Card R7 (readSuit rest)
+readCard ('8':rest) = Card R8 (readSuit rest)
+readCard ('9':rest) = Card R9 (readSuit rest)
+readCard ('1':'0':rest) = Card R10 (readSuit rest)
+readCard ('A':rest) = Card RA (readSuit rest)
+readCard ('J':rest) = Card RJ (readSuit rest)
+readCard ('Q':rest) = Card RQ (readSuit rest)
+readCard ('K':rest) = Card RK (readSuit rest)
 
 readSuit :: String -> Suit
 readSuit ('H':[]) = Hearts
