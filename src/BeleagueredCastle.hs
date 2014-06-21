@@ -2,17 +2,17 @@ module BeleagueredCastle (
   Card(Card),
   Suit(..),
   Rank(..),
-  Stack(..),
   StackType(..),
   show,
   isLegalMove,
   solve,
   createBoard,
   strAsBoard,
-  strToCard
+  strToCard,
+  ensure
  ) where
 
-import Data.Sequence
+import Data.Sequence (fromList, update)
 import Data.Foldable
 import System.IO
 import Data.List
@@ -56,25 +56,15 @@ instance Show Card where
 allCards = [Card r s | r <- allRanks, s <- allSuits]
 
 data StackType = Foundation | Row deriving (Show, Eq)
-data Stack = Stack [Card] StackType  
-instance Show Stack where
-  show (Stack (x:xs) Foundation) = "[ " ++ (show x) ++ " ]"
-  show (Stack cardList Row) = "[ " ++ (intercalate "  " (map show cardList)) ++ " ]"
 
-data Board = Board [Stack] 
+data Board = Board [[Card]] deriving (Eq)
 instance Show Board where
   show = showBoard
 
 showBoard :: Board -> String
-showBoard (Board list) = 
-  let foundations = Data.List.filter (\x -> stackType x == Foundation) list  
-      rows        = Data.List.filter (\x -> stackType x == Row) list  
-  in (show foundations) ++ "\n" ++ (intercalate "\n" (map show rows))
+showBoard (Board list) = (intercalate "\n" (map show list))
 
-
-
-
-getStack :: Board -> Int -> Stack
+getStack :: Board -> Int -> [Card]
 getStack (Board stackList) index = stackList !! index
 
 rank :: Card -> Rank
@@ -83,38 +73,47 @@ rank (Card r _) = r
 suit :: Card -> Suit
 suit (Card _ s) = s
 
-cards :: Stack -> [Card]
-cards (Stack cards stackType) = cards
 
-stackType :: Stack -> StackType
-stackType (Stack cards stackType) = stackType
-
+-- succeedsInSuit a b means a succeeds b and both cards are of the same suit
 succeedsInSuit :: Card -> Card -> Bool
 succeedsInSuit _ (Card RK _) = False
 succeedsInSuit (Card r1 s1) (Card r2 s2) = (succ r2) == r1 && s1 == s2
 
+-- precedes a b means a precedes b regardless of suit
 precedes :: Card -> Card -> Bool
 precedes _ (Card RA _) = False
 precedes (Card r1 _) (Card r2 _) = (pred r2) == r1
 
-isLegalMove :: Stack -> Stack -> Bool
-isLegalMove (Stack (topCard:_) _) (Stack (topCard2:_) Foundation) = succeedsInSuit topCard topCard2
-isLegalMove (Stack (topCard:_) _) (Stack (topCard2:_) Row) = precedes topCard topCard2 && rank topCard /= RA
+-- isLegalMove cards1 cards2 t : is moving the top card from 
+-- cards1 to cards2 legal, where cards2 is a stack of type t?
+isLegalMove :: [Card] -> [Card] -> StackType -> Bool
+isLegalMove [] _ _ = False  -- consider this clause carefully
+isLegalMove _ [] _ = False   -- consider this clause carefully, affects termination conditions
+isLegalMove (topCard:_) (topCard2:_) Foundation = succeedsInSuit topCard topCard2
+isLegalMove (topCard:_) (topCard2:_) Row = precedes topCard topCard2 && rank topCard /= RA
 
 isLegalMoveBoard :: Board -> (Int, Int) -> Bool
-isLegalMoveBoard board (index1, index2) = isLegalMove (getStack board index1) (getStack board index2)
+isLegalMoveBoard board (index1, index2) = 
+  isLegalMove (getStack board index1) (getStack board index2) (stackType index2)
+
+stackType :: Int -> StackType
+stackType i 
+  | i < 4     = Foundation
+  | otherwise = Row
+
+toSeq = Data.Sequence.fromList
 
 move :: Board -> (Int, Int) -> Board
 move (Board stackList) (index1, index2) =
     let fromStack = stackList !! index1
         toStack = stackList !! index2
-        fromType = stackType fromStack
-        toType = stackType toStack
-        (e:rem) = cards fromStack
-        toCards = cards toStack
-        resultFrom = Stack rem fromType
-        resultTo = Stack (e:toCards) toType
-    in Board (toList(update index2 resultTo (update index1 resultFrom (fromList stackList))))
+        fromType = stackType index1
+        toType = stackType index2
+        (e:rem) = fromStack
+        toCards = toStack
+        resultFrom = rem
+        resultTo = (e:toCards)
+    in Board (toList(update index2 resultTo (update index1 resultFrom (toSeq stackList))))
 
 
 generateMoves :: Board -> [Board]
@@ -129,57 +128,58 @@ startingBoard cards =
     let cardsWithoutAces = [c | c <- cards, rank c /= RA]
         rows = tail (map fst (takeWhile (/= ([], [])) (iterate (\ x -> Data.List.splitAt 6 (snd x)) ([], cardsWithoutAces))))
         foundations = [[Card RA suit] | suit <- [Hearts ..]]
-    in asBoard foundations rows
+    in createBoard (foundations ++ rows)
 
+
+-- TODO check there are 12 stacks totalling 52 cards
 createBoard :: [[Card]] -> Board
-createBoard cards = 
-  let f = Data.List.take 4 cards
-      r = Data.List.drop 4 cards
-  in asBoard f r
-
-asBoard :: [[Card]] -> [[Card]] -> Board
-asBoard f r = Board ((asFoundations f) ++ (asRows r))
-
-asFoundations :: [[Card]] -> [Stack]
-asFoundations [w,x,y,z] = [Stack w Foundation,
-                          Stack x Foundation,
-                          Stack y Foundation,
-                          Stack z Foundation]
-
-asRows :: [[Card]] -> [Stack]
-asRows [] = []
-asRows (x:xs) = (Stack x Row) : (asRows xs)
+createBoard cards = Board cards
 
 
 solve :: Board -> Maybe [(Int, Int)]
 solve _ = Just []
 
+
+---------------------------------------------------------
+-- Functions to read Boards and Cards from Strings-------
+---------------------------------------------------------
+
 strAsBoard :: String -> Board
 strAsBoard str = 
   let l = lines str
-      f = Data.List.take 4 l
-      r = Data.List.drop 4 l
-  in asBoard (map parseFoundation f) (map parseRow r)
+      parsedStacks = (map parseStack l)
+      stacks = reverse (ensure 12 [] (reverse parsedStacks))
+  in createBoard stacks
+
+ensure n val list 
+  | n <= (length list) = list
+  | n >  (length list) = ensure n val (val:list)
+
+
+
+parseStack :: String -> [Card]
+parseStack line = 
+  let strlist = words line
+  in map strToCard strlist
 
 strToCard :: String -> Card
-strToCard "AH" = Card RA Hearts
-strToCard "2H" = Card R2 Hearts
-strToCard "3H" = Card R3 Hearts
-strToCard "4H" = Card R4 Hearts
-strToCard "5H" = Card R5 Hearts
-strToCard "6H" = Card R6 Hearts
-strToCard "7H" = Card R7 Hearts
-strToCard "8H" = Card R8 Hearts
-strToCard "9H" = Card R9 Hearts
-strToCard "10H" = Card R10 Hearts
-strToCard "JH" = Card RJ Hearts
-strToCard "QH" = Card RQ Hearts
-strToCard "KH" = Card RK Hearts
+strToCard ('2':rest) = Card R2 (readSuit rest)
+strToCard ('3':rest) = Card R3 (readSuit rest)
+strToCard ('4':rest) = Card R4 (readSuit rest)
+strToCard ('5':rest) = Card R5 (readSuit rest)
+strToCard ('6':rest) = Card R6 (readSuit rest)
+strToCard ('7':rest) = Card R7 (readSuit rest)
+strToCard ('8':rest) = Card R8 (readSuit rest)
+strToCard ('9':rest) = Card R9 (readSuit rest)
+strToCard ('1':'0':rest) = Card R10 (readSuit rest)
+strToCard ('A':rest) = Card RA (readSuit rest)
+strToCard ('J':rest) = Card RJ (readSuit rest)
+strToCard ('Q':rest) = Card RQ (readSuit rest)
+strToCard ('K':rest) = Card RK (readSuit rest)
 
-  
+readSuit :: String -> Suit
+readSuit ('H':[]) = Hearts
+readSuit ('D':[]) = Diamonds
+readSuit ('S':[]) = Spades
+readSuit ('C':[]) = Clubs
 
-parseFoundation :: String -> [Card]
-parseFoundation s = []
-
-parseRow :: String -> [Card]
-parseRow s = []

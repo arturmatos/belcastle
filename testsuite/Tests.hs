@@ -19,8 +19,8 @@ tests =
      testCase "alreadysolved" test_if_already_solved_return_empty_list,
      testCase "onemove1" test_if_one_move_to_solve_report_that_move ,
      testCase "onemove2" test_if_one_move_to_solve_from_stack1_report_that_move,
-     testCase "strAsBoard" testConvertFromStringToBoard_noRowsPresent,
-     testProperty "prop1" prop_sort1 
+     testCase "strsToCards" testConvertCharsToCard,
+     testCase "strAsBoard" testConvertFromStringToBoard_noRowsPresent
     ]
   ]
 
@@ -28,10 +28,8 @@ tests =
 test_1 = assertEqual "" "A\x2661" (show (Card RA Hearts))
 
 test_2 = assertEqual "cannot move ace from foundation to row" 
-  False (isLegalMove (Stack [Card RA Hearts] Foundation) (Stack [Card R2 Clubs] Row))
+  False (isLegalMove [Card RA Hearts] [Card R2 Clubs] Row)
 
-prop_sort1 xs = sort xs == sortBy compare xs
-  where types = (xs :: [Int])
 
 test_if_already_solved_return_empty_list = 
   let b = strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
@@ -73,26 +71,14 @@ testConvertFromStringToBoard_noRowsPresent =
       diamonds = Data.List.reverse [Card r Diamonds | r <- [RA, R2, R3, R4, R5, R6, R7, R8, R9, R10, RJ, RQ, RK]]
       clubs = Data.List.reverse [Card r Clubs | r <- [RA, R2, R3, R4, R5, R6, R7, R8, R9, R10, RJ, RQ, RK]]
       spades = Data.List.reverse [Card r Spades | r <- [RA, R2, R3, R4, R5, R6, R7, R8, R9, R10, RJ, RQ, RK]]
-  in assertEqual "" (strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
-                               "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
-                               "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
-                               "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n"))
-                    (createBoard [hearts, diamonds, clubs, spades,
+  in assertEqual "" (createBoard [hearts, diamonds, clubs, spades,
                                   [], [], [], [], [], [], [], [] ])
+                    (strAsBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                                 "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                                 "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                                 "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n"))
 
--- test2 = TestCase (assertEqual "" 
-  -- "[[ A♡ ],[ A♢ ],[ A♣ ],[ A♠ ]]\n" ++
-  -- "[  ]\n" ++
-  -- "[ 3♣  3♠  4♡  4♢  4♣  4♠ ]\n" ++
-  -- "[ 5♡  5♢  5♣  5♠  6♡  6♢ ]\n" ++
-  -- "[ 6♣  6♠  7♡  7♢  7♣  7♠ ]\n" ++
-  -- "[ 8♡  8♢  8♣  8♠  9♡  9♢ ]\n" ++
-  -- "[ 9♣  9♠  10♡  10♢  10♣  10♠ ]\n" ++
-  -- "[ J♡  J♢  J♣  J♠  Q♡  Q♢ ]\n" ++
-  -- "[ Q♣  Q♠  K♡  K♢  K♣  K♠ ]\n",
-  -- show (move board (0,4))
-
--- quickcheck invariant for move function: number of cards in board must be 52
+-- TODO quickcheck invariant for move function: number of cards in board must be 52
 
 
 
