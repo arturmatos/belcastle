@@ -1,0 +1,4 @@
+#!/bin/bash
+# This script exists because I'm sick of typing the cabal commands
+
+cabal configure --enable-tests && cabal build && cabal test

@@ -7,13 +7,16 @@ module BeleagueredCastle (
   show,
   isLegalMove,
   solve,
-  strAsBoard
+  createBoard,
+  strAsBoard,
+  strToCard
  ) where
 
 import Data.Sequence
 import Data.Foldable
 import System.IO
 import Data.List
+import Data.String
 
 
 data Suit = Hearts | Diamonds | Clubs | Spades deriving (Eq, Enum)
@@ -121,21 +124,29 @@ generateMoves board =
  in map (move board) possibleMoves
 
 
-
-createBoard :: [Card] -> Board
-createBoard cards =
+startingBoard :: [Card] -> Board
+startingBoard cards =
     let cardsWithoutAces = [c | c <- cards, rank c /= RA]
         rows = tail (map fst (takeWhile (/= ([], [])) (iterate (\ x -> Data.List.splitAt 6 (snd x)) ([], cardsWithoutAces))))
         foundations = [[Card RA suit] | suit <- [Hearts ..]]
     in asBoard foundations rows
 
+createBoard :: [[Card]] -> Board
+createBoard cards = 
+  let f = Data.List.take 4 cards
+      r = Data.List.drop 4 cards
+  in asBoard f r
+
+asBoard :: [[Card]] -> [[Card]] -> Board
 asBoard f r = Board ((asFoundations f) ++ (asRows r))
 
+asFoundations :: [[Card]] -> [Stack]
 asFoundations [w,x,y,z] = [Stack w Foundation,
                           Stack x Foundation,
                           Stack y Foundation,
                           Stack z Foundation]
 
+asRows :: [[Card]] -> [Stack]
 asRows [] = []
 asRows (x:xs) = (Stack x Row) : (asRows xs)
 
@@ -144,4 +155,31 @@ solve :: Board -> Maybe [(Int, Int)]
 solve _ = Just []
 
 strAsBoard :: String -> Board
-strAsBoard str = createBoard allCards
+strAsBoard str = 
+  let l = lines str
+      f = Data.List.take 4 l
+      r = Data.List.drop 4 l
+  in asBoard (map parseFoundation f) (map parseRow r)
+
+strToCard :: String -> Card
+strToCard "AH" = Card RA Hearts
+strToCard "2H" = Card R2 Hearts
+strToCard "3H" = Card R3 Hearts
+strToCard "4H" = Card R4 Hearts
+strToCard "5H" = Card R5 Hearts
+strToCard "6H" = Card R6 Hearts
+strToCard "7H" = Card R7 Hearts
+strToCard "8H" = Card R8 Hearts
+strToCard "9H" = Card R9 Hearts
+strToCard "10H" = Card R10 Hearts
+strToCard "JH" = Card RJ Hearts
+strToCard "QH" = Card RQ Hearts
+strToCard "KH" = Card RK Hearts
+
+  
+
+parseFoundation :: String -> [Card]
+parseFoundation s = []
+
+parseRow :: String -> [Card]
+parseRow s = []
