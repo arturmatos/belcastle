@@ -104,15 +104,10 @@ toSeq = Data.Sequence.fromList
 
 move :: Board -> (Int, Int) -> Board
 move (Board stackList) (index1, index2) =
-    let fromStack = stackList !! index1
-        toStack = stackList !! index2
-        fromType = stackType index1
-        toType = stackType index2
-        (e:rem) = fromStack
-        toCards = toStack
-        resultFrom = rem
-        resultTo = (e:toCards)
-    in Board (toList(update index2 resultTo (update index1 resultFrom (toSeq stackList))))
+    let (movedCard:remainingSrc) = stackList !! index1
+        destStack = stackList !! index2
+        resultingTo = (movedCard:destStack)
+    in Board (toList(update index2 resultingTo (update index1 remainingSrc (toSeq stackList))))
 
 
 generateMoves :: Board -> [Board]
