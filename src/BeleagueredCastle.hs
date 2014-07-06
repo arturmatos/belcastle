@@ -149,15 +149,18 @@ default_head [] def = def
 default_head (x:_) def = x
 
 solve :: Board -> Maybe [Move]
-solve board = solve' board []
+solve board = solve' [board] []
 
-solve' :: Board -> [Move] -> Maybe [Move]
-solve' board moveList
+solve' :: [Board] -> [Move] -> Maybe [Move]
+solve' (board:bs) moveList
   | is_solved board = Just moveList 
   | otherwise =
-       let moves = trace ("possibleMoves board = " ++ show board) (possibleMoves board)
-           newBoards = map (move board) moves 
-           solutions = zipWith (\b m -> solve' b (m:moveList)) newBoards moves
+       let boardList = (board:bs)
+           moves = (possibleMoves board)
+           boards = trace ("possibleMoves  = " ++ show moves) (map (move board) moves)
+           movesBoards = zip moves boards
+           unseenMovesBoards = filter (\(m, b) -> b `Data.List.notElem` boardList) movesBoards
+           solutions = map (\(m, b) -> solve' (b:boardList) (m:moveList)) unseenMovesBoards
            filteredSolutions = filter isJust solutions 
        in default_head filteredSolutions Nothing
 
