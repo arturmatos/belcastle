@@ -8,7 +8,8 @@ module BeleagueredCastle (
   solve,
   createBoard,
   readBoard,
-  readCard
+  readCard,
+  is_solved
  ) where
 
 import Data.Sequence (fromList, update)
@@ -16,7 +17,8 @@ import Data.Foldable
 import System.IO
 import Data.List
 import Data.String
-
+import Data.Maybe
+import Debug.Trace
 
 data Suit = Hearts | Diamonds | Clubs | Spades deriving (Eq, Enum)
 instance Show Suit where
@@ -116,6 +118,12 @@ generateMoves board =
      possibleMoves = Data.List.filter (isLegalMove board) moveIndexes
  in map (move board) possibleMoves
 
+possibleMoves :: Board -> [Move]
+possibleMoves board =
+ let moveIndexes = [(x, y) | x <- [0 .. 11] , y <- [0 .. 11], x /= y]
+ in Data.List.filter (isLegalMove board) moveIndexes
+
+
 
 startingBoard :: [Card] -> Board
 startingBoard cards =
@@ -129,9 +137,30 @@ startingBoard cards =
 createBoard :: [[Card]] -> Board
 createBoard cards = Board cards
 
+is_solved :: Board -> Bool
+is_solved board = 
+   let foundations = [(getStack board i) | i <- [0..3]]
+       topCards = [c | (c:_) <- foundations]
+       allKings = [rank c == RK | c <- topCards] 
+   in Data.List.and allKings  
 
-solve :: Board -> Maybe [(Int, Int)]
-solve _ = Just []
+default_head :: [a] -> a -> a
+default_head [] def = def
+default_head (x:_) def = x
+
+solve :: Board -> Maybe [Move]
+solve board = solve' board []
+
+solve' :: Board -> [Move] -> Maybe [Move]
+solve' board moveList
+  | is_solved board = Just moveList 
+  | otherwise =
+       let moves = trace ("possibleMoves board = " ++ show board) (possibleMoves board)
+           newBoards = map (move board) moves 
+           solutions = zipWith (\b m -> solve' b (m:moveList)) newBoards moves
+           filteredSolutions = filter isJust solutions 
+       in default_head filteredSolutions Nothing
+
 
 
 ---------------------------------------------------------

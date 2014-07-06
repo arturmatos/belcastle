@@ -20,15 +20,36 @@ tests =
      testCase "onemove1" test_if_one_move_to_solve_report_that_move ,
      testCase "onemove2" test_if_one_move_to_solve_from_stack1_report_that_move,
      testCase "strsToCards" testConvertCharsToCard,
-     testCase "readBoard" testConvertFromStringToBoard_noRowsPresent
+     testCase "readBoard" testConvertFromStringToBoard_noRowsPresent,
+     testCase "is_solved_solved_board" test_if_is_solved_returns_true_for_a_solved_board,
+     testCase "is_solved_unsolved_board" test_if_is_solved_returns_false_for_an_unsolved_board
     ]
   ]
+
+
 
 
 test_1 = assertEqual "" "A\x2661" (show (Card RA Hearts))
 
 test_2 = assertEqual "cannot move ace from foundation to row" 
   False (isLegalStackMove [Card RA Hearts] [Card R2 Clubs] Row)
+
+
+test_if_is_solved_returns_true_for_a_solved_board = 
+  let b = readBoard ("KH QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                     "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                     "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                     "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n")
+  in assertEqual "" (is_solved b) (True)
+
+test_if_is_solved_returns_false_for_an_unsolved_board =
+  let b = readBoard ("QH JH 10H 9H 8H 7H 6H 5H 4H 3H 2H AH\n" ++
+                     "KD QD JD 10D 9D 8D 7D 6D 5D 4D 3D 2D AD\n" ++
+                     "KC QC JC 10C 9C 8C 7C 6C 5C 4C 3C 2C AC\n" ++
+                     "KS QS JS 10S 9S 8S 7S 6S 5S 4S 3S 2S AS\n" ++
+                     "KH\n"
+                     )
+  in assertEqual "" (is_solved b) (False)
 
 
 test_if_already_solved_return_empty_list = 
